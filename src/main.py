@@ -1,29 +1,33 @@
 import argparse
 import datetime
 import speedtest
+import time
 
 now = datetime.datetime.now()
 print ("Current date and time : ")
 print (now.strftime("%Y-%m-%d %H:%M:%S"))
 
+class SpeedObj():
+	def __init__():
+		self.st = start_time
+		self.et = end_time
+		self.performance_down = []
+		self.performance_up = []
+		self.timemark = []
 
-def arg_parser():
-	parser = argparse.ArgumentParser()
+	def update(self, results_dict):
+		self.performance_down.append(results_dict)
+		self.performance_up.append(results_dict)
+		self.timemark.append(datetime.datetime.now)
 
-	parser.add_argument('--duration',
-						default=1,
-						help='The duration in hours in which the check should be carried out.',
-						dest='duration')
-	parser.add_argument('--interval',
-						default=1,
-						help='The interval in minutes in which check should be carried out.',
-						dest='interval')
-	return parser.parse_args()
-	
-def main():
-	args = arg_parser()
+	def retrieve(self):
+		return self.performance_down, self.performance_up, self.timemark
 
-	print(f"Check will be carried out for {args.duration}h in {args.interval} min intervals.")
+
+def perform_check():
+	time = datetime.datetime.now()
+	print("Performing network speedtest, time is: ")
+	print (now.strftime("%H:%M:%S"))
 
 	servers = []
 	# If you want to test against a specific server
@@ -41,7 +45,36 @@ def main():
 	s.results.share()
 
 	results_dict = s.results.dict()
-	print(results_dict)
+
+
+def arg_parser():
+	parser = argparse.ArgumentParser()
+
+	parser.add_argument('--duration',
+						default=1,
+						help='The duration in hours in which the check should be carried out.',
+						dest='duration',
+						type=int)
+	parser.add_argument('--interval',
+						default=1,
+						help='The interval in minutes in which check should be carried out.',
+						dest='interval',
+						type=int)
+	return parser.parse_args()
+	
+def main():
+	args = arg_parser()
+
+	print(f"Check will be carried out for {args.duration}h in {args.interval} min intervals.")
+
+	speed = SpeedObj()
+
+	start_time = datetime.datetime.now()
+	end_time = start_time + datetime.timedelta(hours=args.duration)
+
+	while datetime.datetime.now() < end_time:
+		perform_check()
+		time.sleep(args.interval * 60)
 
 
 if __name__ == "__main__":
